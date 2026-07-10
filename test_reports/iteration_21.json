@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 21 — Verified all 11 runtime-bug fixes from the cleanup pass. Created /app/backend/tests/test_cleanup_iteration_21.py with 13 tests covering the complaint char-validator, DISCORD_ORDER_WEBHOOK import (payment-screenshot + status update), Path import (SMTP settings), google_sheets_service import (order flow triggers customer sync), PromoCode model, LlmChat/UserMessage import (chat endpoint), SiteSettingsUpdate validators, health endpoint, and full order-create regression. All 13 new tests pass. Existing regression suite (test_order_cleanup.py, test_create_order_ip.py, test_order_tax_settings.py) — 16/16 pass. No fresh NameError/TypeError/AttributeError in backend.err.log during test run. Frontend smoke: homepage (200), /products (200, 33 products render), /product/youtube-premium (200) — all healthy.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "ruff check backend --exclude '**/__pycache__/**'",
+        "issue": "Claim 'Zero lint errors remain' is not literally true — ruff still surfaces 70 style/formatting errors in backend source (unused imports, E402 module-level import order in server.py, f-strings without placeholders in setup scripts). HOWEVER, the important runtime-safety selectors F821 (undefined names) and F811 (duplicate definitions) return zero errors on backend/routes, backend/server.py, backend/database.py. So the 'live runtime bugs' claim is verified — remaining lint items are cosmetic."
+      },
+      {
+        "endpoint": "n/a",
+        "issue": "Google Sheets sync is still failing with 'invalid_grant: Invalid JWT Signature' on every order (pre-existing, called out in the review request). The NameError is fixed, but the credentials remain invalid; every order emits an ERROR log line. Recommend rotating the service account key or gating the sync behind a feature flag."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cleanup_iteration_21.py",
+    "/app/test_reports/pytest/iteration_21_cleanup.xml"
+  ],
+  "action_items": [
+    "OPTIONAL — Address remaining ruff style errors in backend source (unused imports, f-string prefixes in scripts/setup_admin_system.py, E402 in server.py) if the intent was truly zero lint errors. These are non-blocking.",
+    "SEPARATE ISSUE — Rotate/repair GOOGLE_SERVICE_ACCOUNT_JSON so Google Sheets sync stops throwing invalid_grant on every order (already flagged as pre-existing)."
+  ],
+  "critical_code_review_comments": [
+    "orders.py is 1226 lines — exceeds the 700-line guideline. Consider splitting into orders_create.py, orders_admin.py, orders_complaint.py, orders_status.py for maintainability.",
+    "Duplicate PUT /settings and PUT /settings/smtp both call db.site_settings.update_one — the shared upsert pattern could be extracted into a helper.",
+    "content.py line 358: `from dotenv import dotenv_values` is imported inside the function on every SMTP GET. Move to module-level for perf.",
+    "orders.py complaint endpoint uses `data: dict` — good runtime robustness, but consider a Pydantic model (ComplaintRequest) for API-doc clarity and automatic 422 validation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_cleanup_iteration_21.py (new)"
+  ],
+  "success_rate": {"backend": "100% (13/13 new + 16/16 regression = 29/29)", "frontend": "100% (smoke — homepage, products, product page all 200)"},
+  "test_credentials": "Admin: gsnadmin / gsnadmin (from /app/memory/test_credentials.md — verified working)",
+  "seed_data_creation": "None persisted — every test creates its own TEST_-prefixed order/promo and deletes on teardown.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "test_cleanup_iteration_21.py is the canonical regression file for the 11 cleanup fixes (complaint validator, DISCORD_ORDER_WEBHOOK, Path, google_sheets_service, PromoCode, LlmChat imports, SiteSettingsUpdate validators, health, order-create). Run with: pytest backend/tests/test_cleanup_iteration_21.py -v. All 13 pass end-to-end against the preview URL. Auth uses field name 'email' (not 'username') and returns 'token' (not 'access_token'). /api/orders returns {orders, total, limit, skip} dict, NOT a bare list. /api/settings/smtp GET can return either database-source or env_file-source dict (both are valid). Google Sheets sync errors on every order are pre-existing and unrelated — the NameError fix means the request no longer 500s.",
+  "rca of the issue": "Not applicable — this was a verification pass, no new bugs discovered. Stale NameError entries in backend.err.log lines 2357/2425 (for `client_ip`) are from BEFORE iteration 19's fix; line 175 of orders.py now correctly defines client_ip at line 164 before use. Verified by successful /orders/create test."
+}

@@ -1,0 +1,71 @@
+{
+  "summary": "Tested 401 error handling fix for Customer Account Page. All tests pass - backend returns proper 401 errors for invalid/expired tokens, and frontend correctly handles these errors by clearing localStorage and redirecting to homepage with a toast message.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_401_error_handling.py",
+    "/app/test_reports/pytest/pytest_401_handling.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "handleAuthError function in CustomerAccountPage.jsx is properly implemented - clears localStorage and redirects to homepage",
+    "All API calls (fetchData, refreshOrders, handleSaveProfile) correctly check for 401 status and call handleAuthError",
+    "Email templates in email_service.py have clean premium design with good visual hierarchy"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_401_error_handling.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)",
+    "frontend": "100% (401 error handling working correctly)"
+  },
+  "test_credentials": {},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "401 error handling for customer account page has been fully tested and verified working. Backend endpoints return 401 for invalid/expired tokens, frontend redirects to homepage and shows 'Your session has expired. Please login again.' toast message.",
+  "features_tested": {
+    "401_error_handling_backend": {
+      "status": "PASS",
+      "details": "All customer endpoints (/api/customer/orders, /api/customer/stats, /api/auth/customer/profile, /api/auth/customer/me) return 401 for invalid/expired tokens"
+    },
+    "401_error_handling_frontend": {
+      "status": "PASS",
+      "details": "When 401 error is received on CustomerAccountPage, localStorage is cleared (customer_token and customer_info removed) and user is redirected to homepage"
+    },
+    "toast_notification": {
+      "status": "PASS",
+      "details": "Toast message 'Your session has expired. Please login again.' is displayed when session expires"
+    },
+    "no_auth_redirect": {
+      "status": "PASS",
+      "details": "Navigating to /account without any token properly redirects to homepage"
+    },
+    "api_endpoints_tested": [
+      "GET /api/customer/orders with invalid token - 401",
+      "GET /api/customer/orders with expired token - 401",
+      "GET /api/customer/stats with invalid token - 401",
+      "GET /api/customer/stats with expired token - 401",
+      "PUT /api/auth/customer/profile with invalid token - 401",
+      "PUT /api/auth/customer/profile with expired token - 401",
+      "GET /api/auth/customer/me with invalid token - 401",
+      "GET /api/customer/orders without auth header - 403",
+      "GET /api/customer/stats without auth header - 403",
+      "GET /api/credits/balance without email - 422",
+      "GET /api/credits/balance with email - 200"
+    ]
+  },
+  "bug_fix_verification": {
+    "original_issue": "Customer account page showing 'couldn't fetch data' error when token expired",
+    "fix_applied": "Added handleAuthError function that clears localStorage and redirects to homepage with toast message",
+    "verification_result": "PASS - Error handling working correctly",
+    "test_method": "Set invalid token in localStorage, navigate to /account, verified redirect to homepage and localStorage cleared"
+  }
+}

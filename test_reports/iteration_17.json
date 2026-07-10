@@ -1,0 +1,34 @@
+{
+  "summary": "Verified bug fix for pending-order auto-cleanup. Root cause was case mismatch: orders route inserts status='Pending' (capital) but cleanup query filtered status='pending' (lowercase), so nothing ever matched. Fix in /app/backend/order_cleanup.py now uses $in: ['Pending','pending']. Confirmed via direct DB seed + direct invocation of cleanup_old_pending_orders(): both old 'Pending' and 'pending' orders were deleted, fresh Pending order kept, and old 'Completed'/'Confirmed'/'cancelled' orders were preserved. Supervisor backend logs also show '✅ Order cleanup background task started (interval=5min, ttl=30min)' and multiple '🗑️ Auto-deleted N pending orders older than 30 minutes' entries confirming the periodic task runs on server boot.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "order_cleanup.run_cleanup_task", "issue": "If cleanup raises an exception, the loop only logs and immediately sleeps 5 min - fine. However on first-time schedule, there's no initial delay; harmless but worth noting."},
+      {"endpoint": "routes/orders.py", "issue": "Duplicate class definitions of OrderItem and CreateOrderRequest (lines 22-41 and 72-88) - dead code, second overrides first. Code hygiene issue, not functional."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_order_cleanup.py",
+    "/app/test_reports/pytest/pytest_order_cleanup.xml"
+  ],
+  "action_items": [
+    "(Optional cleanup) Remove duplicate OrderItem / CreateOrderRequest class definitions in /app/backend/routes/orders.py (lines 22-41 vs 72-88)."
+  ],
+  "critical_code_review_comments": [
+    "Fix is correct and minimal: $in match covers historic lowercase data plus current 'Pending' writes.",
+    "created_at is stored as ISO 8601 UTC string; $lt with ISO cutoff string works because ISO 8601 sorts lexicographically for same-format timestamps. Good.",
+    "run_cleanup_task uses a bare `while True` with 5-min sleep and per-iteration client open/close in cleanup_old_pending_orders. Acceptable but could reuse the shared motor client (database.db) to avoid churn.",
+    "server.py properly schedules the task via asyncio.create_task on startup event. Confirmed running in supervisor logs.",
+    "Duplicate Pydantic models in routes/orders.py (OrderItem, CreateOrderRequest, PaymentScreenshotUpload, BulkDeleteRequest defined twice) — should be de-duplicated."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_order_cleanup.py (new pytest file)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "N/A (skipped per request)"},
+  "seed_data_creation": "6 TEST_-prefixed synthetic orders inserted directly into MongoDB during the test module, all cleaned up in module teardown. No residual test data.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Bug fix for auto-deletion of stale Pending orders is verified. Pytest at /app/backend/tests/test_order_cleanup.py exercises both status cases + negative cases (Completed/Confirmed/cancelled preservation) + idempotency. Backend startup log confirms scheduler is registered.",
+  "rca of the issue": "RCA: /app/backend/routes/orders.py::create_order sets status='Pending' (capital P) when inserting, while the original cleanup query in /app/backend/order_cleanup.py used {'status':'pending'} (lowercase). MongoDB matches are case-sensitive, so the delete_many query never matched any real order and pending orders piled up indefinitely. Reproduction: insert a doc {status:'Pending', created_at: <31min ago ISO>}; run cleanup_old_pending_orders() with old code -> doc still present. Mitigation applied: change query to {'status': {'$in': ['Pending','pending']}}. Verified via test_cleanup_deletes_old_pending_orders (both cases removed) and by observing '🗑️ Auto-deleted N pending orders' in supervisor logs post-restart. Long-term recommendation: pick one canonical case (recommend 'pending' or an enum) and migrate all existing docs, then drop the $in fallback."
+}

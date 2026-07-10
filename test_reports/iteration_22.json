@@ -1,0 +1,54 @@
+{
+  "summary": "Iteration 22 — Verified all four security fixes for order-create exploit chain: (1) HARD variation validation (no fallback to product.variations[0], now rejects fake variation_id + fake variation name with 400 + 'variation'), (2) missing/fake product_id → 400 'Invalid product', (3) tightened tolerance from 90%→95% with an additional Rs 2 absolute floor, (4) rate-limit + blocklist now wired into POST /api/orders/create. Created /app/backend/tests/test_order_security.py (9 tests, all pass) covering the exploit reproductions, tolerance bands, rate limit (4th order from same IP → 429) and blocklist (blocked IP → 429, then unblock succeeds). Also created /app/backend/tests/conftest.py that injects a per-test X-Forwarded-For header so the new rate limiter does not cross-contaminate other pytest modules. Confirmed via backend logs that PRICE MANIPULATION, RATE-LIMIT BLOCK, and IP BLOCKED warnings fire as expected. Verified via direct MongoDB query: zero TEST_sec_exploit_ orders inserted despite the exploit endpoints returning 400 — server-side validation blocks before insert.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "POST /api/orders/create (via test_cleanup_iteration_21.py fixtures)",
+        "issue": "STALE TEST FIXTURES — The complaint / status / regression tests in test_cleanup_iteration_21.py send order payloads with items that lack product_id. They previously succeeded under the old lax fallback and now correctly 400 with 'Invalid product'. Tests need real product_id/variation_id to keep asserting downstream flow. 3 failures + 4 setup errors in test_cleanup_iteration_21.py are ALL from this same missing-product_id root cause, NOT from the fix. See action_items."
+      },
+      {
+        "endpoint": "POST /api/orders/create (test_order_tax_settings.py::test_tax_10_service_5_within_floor_accepted)",
+        "issue": "Test expected client=195 with server=203 to be accepted under old 90% tolerance (floor 182.7). Under new tolerance (max(203-2, 203*0.95) = 201) the client value 195 is correctly rejected. Test needs to be updated to send >=201 (e.g. 201 or 202)."
+      },
+      {
+        "endpoint": "/api/orders/create — Google Sheets sync side-effect",
+        "issue": "Pre-existing (flagged in iter21): 'invalid_grant: Invalid JWT Signature' on every successful order. Not caused by this fix. Recommend rotating GOOGLE_SERVICE_ACCOUNT_JSON."
+      }
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_order_security.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_order_security.xml",
+    "/app/test_reports/pytest/pytest_regression_iter22.xml"
+  ],
+  "action_items": [
+    "Update /app/backend/tests/test_cleanup_iteration_21.py — every order payload must include a real product_id and variation_id. Reuse constants from test_order_tax_settings.py (PRODUCT_ID=a82b37ff-…, VARIATION_ID=var-1769608319597, name='1 MONTH [FAMILY JOIN]', price=180). Affected tests: test_order fixture (lines 41-51), test_status_update_no_nameerror (lines 128-133), test_full_order_flow (lines 240-247). This will re-enable the complaint / payment-screenshot / status regression coverage.",
+    "Update /app/backend/tests/test_order_tax_settings.py::test_tax_10_service_5_within_floor_accepted — change total_amount from 195 to 201 (or 202) so it lies within the new tolerance band; also loosen the docstring comment which still says '>=182.7 floor'.",
+    "OPTIONAL cleanup: pre-existing DB row id=8a8f69ab-0e9e-4c25-ad59-029e01a370e2 (Windows 11 Pro, total=Rs 11.07, ashok mukhiya, 2026-03-18) is the fraudulent order from BEFORE the fix — main agent may want to purge it. New attempts are correctly blocked."
+  ],
+  "critical_code_review_comments": [
+    "routes/orders.py is still 1261 lines (was 1226 in iter21 report). Still exceeds 700-line guideline. Splitting into orders_create.py + orders_admin.py + orders_status.py + orders_blocklist.py would help.",
+    "order_ratelimit.py stores state in module-level globals → resets on server restart. Blocklist persistence lives in db.site_settings.blocklist via /api/blocklist endpoints, but there is NO auto-restore call at server startup — /api/blocklist/restore is manual. If the backend restarts, blocked IPs are cleared until an admin calls that endpoint. Recommend calling restore on FastAPI startup lifespan.",
+    "The rate-limit key is (ip,) only. If an attacker rotates IPs (e.g. via cheap proxies), they can still fire mass orders. A secondary counter keyed on (email,) would provide defence-in-depth. Currently email-level throttling is only enforced via explicit blocklist.",
+    "check_rate_limit uses default arg 'unknown' when client_ip is None — a legitimate customer behind a proxy chain that strips X-Forwarded-For would share the 'unknown' bucket with everyone else and could be locked out by a shared 3-order counter. Consider falling back to email hashing instead of a shared 'unknown' key.",
+    "The 5% tolerance + Rs 2 floor is correct for order manipulation, but the code path silently uses server_final over client total even when the two are close-but-different. A logged INFO diff would help future forensic investigation of legit-but-drift orders.",
+    "Duplicate stock-decrement logic in complete_order and update_order_status → both loop over items applying the same three-branch fallback. Extract into a helper _decrement_variation_stock(item) for maintainability."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_order_security.py (new — 9 tests)",
+    "/app/backend/tests/conftest.py (new — per-test X-Forwarded-For to isolate rate limiter)"
+  ],
+  "success_rate": {
+    "backend": "100% on new security suite (9/9). Regression suite: 22/29 pass; 3 fail + 4 setup-errored, ALL for the same reason: those older tests were written before this hardening and send items without product_id — behavior change is intentional, tests just need updating (see action_items). test_order_cleanup.py: 2/2 pass. test_create_order_ip.py: 5/5 pass. test_order_tax_settings.py: 7/8 pass (one stale expectation).",
+    "frontend": "n/a — backend-only per review request"
+  },
+  "test_credentials": "Admin: gsnadmin / gsnadmin (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None persistent. All TEST_sec_ orders are auto-cleaned in module teardown. force_settings_zero fixture backs up + restores db.site_settings.main. TestBlocklist test also cleans up its blocked IP.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "The security fix chain is verified end-to-end. IMPORTANT for future runs: /app/backend/tests/conftest.py monkey-patches requests.Session.request to inject a per-test X-Forwarded-For header so the new 3-order/10-min rate limiter does NOT trigger during normal pytest runs. If you write NEW tests that intentionally probe the rate limiter, pin your OWN X-Forwarded-For header (see test_order_security.py::TestRateLimit for the pattern) — your explicit header wins the merge. Real products used: Windows 11 Pro id=8ed0e23d-8b46-40e8-beba-7c7c3f72d305 (Rs 999, var-1773632964256), YouTube Premium id=a82b37ff-0bd5-4c8b-b969-f59d5937fefa (Rs 180, var-1769608319597, name='1 MONTH [FAMILY JOIN]'). New order payloads MUST include product_id AND (variation_id OR variation name matching DB) — the old lax fallback is gone.",
+  "rca of the issue": "Root cause of the reported exploit was two-fold and both fixes are verified: (1) In create_order, when variation_id/variation-name didn't match, the code fell back to product.variations[0].price → an attacker who supplied a real product_id + fake variation could pay for the cheapest tier while receiving a description of an expensive tier. Additionally, when product_id was missing, the code trusted item.price → attackers could invent any name/price. The 90% tolerance + Rs 10 gate let low totals slip through. (2) The rate-limit module existed but was never called from POST /api/orders/create → unlimited mass ordering. Both fixes are now enforced and I have verified: fake variation → 400 + no DB row; missing product_id → 400 + no DB row; fake product_id → 400 + no DB row; 4th order from same IP within 10 min → 429; blocked IP → 429; tolerance rejects 10%-off (client=160 vs server=180) but accepts within Rs 2 (client=178 vs server=180). Backend log confirms PRICE MANIPULATION and RATE-LIMIT BLOCK warnings fire on the exact events."
+}

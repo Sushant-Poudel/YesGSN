@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /panelgsnadminbackend/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /payment/
+Disallow: /account
+Disallow: /invoice/
+Disallow: /daily-reward
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+Sitemap: https://gameshopnepal.com/api/sitemap.xml

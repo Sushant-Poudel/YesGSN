@@ -1,0 +1,39 @@
+{
+  "summary": "Iteration 23 — Re-verified iteration_22 security follow-up fixes. Full backend regression pytest suite now 38/38 pass (0 skip, 0 xfail, 0 error) covering test_order_cleanup.py (2), test_create_order_ip.py (5), test_order_tax_settings.py (8), test_cleanup_iteration_21.py (13), test_order_security.py (9). New test test_blocklist_persist_across_restart.py passes: admin blocks 9.9.9.x → in-memory 429 → sudo supervisorctl restart backend → sleep 5 → same IP STILL returns 429 (restored from db.site_settings.blocklist) → 'Blocklist restored: 1 IPs, 0 emails' present in supervisor log → cleanup via DELETE /api/blocklist/ip. Real-order smoke: POST /api/orders/create with YT Premium payload (product_id=a82b37ff-…, variation_id=var-1769608319597, total_amount=180) returned 200, persisted with total_amount=180.0, and was found in GET /api/orders. Fraudulent-order purge verified: 0 rows with items.variation='5 Diamonds 💎' AND total<100, 0 rows with id='8a8f69ab-0e9e-4c25-ad59-029e01a370e2', 0 orders with the 5-Diamond variation at all. Health returned 200 in 176ms; GET /api/settings has both tax_percentage and service_charge; PUT /api/settings tax=150 as admin correctly returns 422 (Pydantic le<=100). Unauth PUT /api/settings returns 403. conftest.py per-test X-Forwarded-For injection is still in place and preventing rate-limiter cross-contamination.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/orders/create — Google Sheets sync side-effect",
+        "issue": "Pre-existing (flagged in iter21/22): 'invalid_grant: Invalid JWT Signature' on every successful order sync. Not caused by this fix. Recommend rotating GOOGLE_SERVICE_ACCOUNT_JSON."
+      }
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_blocklist_persist_across_restart.py",
+    "/app/test_reports/pytest/pytest_iter23_regression.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routes/orders.py is still 1261 lines. Recommend splitting into orders_create.py + orders_admin.py + orders_status.py + orders_blocklist.py (still exceeds the 700-line guideline).",
+    "check_rate_limit still falls back to key='unknown' when X-Forwarded-For is missing. Legit customers behind a proxy chain that strips the header would share one 3-order counter globally. Consider hashing email+useragent as a fallback bucket instead.",
+    "Rate-limit key is (ip,) only. Attackers rotating cheap proxies can still burst orders. Add a secondary email-level counter for defence-in-depth.",
+    "restore_blocklist route (/api/blocklist/restore) is still present but now redundant with the auto-restore on startup. Consider removing or documenting it as a manual admin escape hatch.",
+    "Duplicate stock-decrement logic in complete_order + update_order_status. Extract into _decrement_variation_stock(item) helper.",
+    "The 5%/Rs 2 tolerance silently uses server_final over client total. A logged INFO diff (e.g. 'server=203 client=202 accepted within Rs 2 floor') would help future forensic investigation of drifts."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_blocklist_persist_across_restart.py (new — verifies blocklist survives sudo supervisorctl restart backend)"
+  ],
+  "success_rate": {
+    "backend": "100% (38/38 regression + 1/1 new blocklist-persist = 39/39). Real-order smoke: 200 OK. Fraudulent purge: 0 rows remaining. Health/settings/admin PUT range validation: all OK.",
+    "frontend": "n/a — backend-only per review request"
+  },
+  "test_credentials": "Admin: gsnadmin / gsnadmin (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None persistent. The new test uses a random per-run IP 9.9.9.X, blocks it, restarts backend, then DELETE /api/blocklist/ip cleans up. The manual real-order smoke inserted 1 row (TEST_iter23_smoke) which was then DELETEd — verified with 200 status.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 23 status: security fix chain (variation/product validation, tolerance floor Rs 2 + 5%, rate limit 3/10min per IP, blocklist restored on startup) is fully green. Stale tests from iter22 (test_cleanup_iteration_21.py fixtures + test_tax_10_service_5_within_floor_accepted) are now updated with real product_id/variation_id and the correct 202-tolerance value. Blocklist auto-restore is at /app/backend/server.py:197-212 inside the @app.on_event('startup') startup_db_client function. Preview URL: https://codebase-import-8.preview.emergentagent.com. Real products: YT Premium id=a82b37ff-0bd5-4c8b-b969-f59d5937fefa, variation_id=var-1769608319597, name='1 MONTH [FAMILY JOIN]', price=180. conftest.py auto-injects per-test X-Forwarded-For (10.X.Y.Z hash of node id) — if you write NEW rate-limit tests, pin your own X-Forwarded-For header explicitly (see test_order_security.py TestRateLimit for the pattern).",
+  "rca of the issue": "n/a — this iteration re-verifies previously-shipped fixes; no new bugs found."
+}

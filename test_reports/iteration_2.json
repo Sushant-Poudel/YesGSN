@@ -1,0 +1,109 @@
+{
+  "summary": "Comprehensive testing of GameShop Nepal e-commerce app after repository swap. All core functionality verified working - homepage, products, admin panel, staff management, orders, categories, and checkout flow.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_gameshop_nepal.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Rate limiting (30 login/minute) may cause 429 during heavy testing - working as designed for security"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_gameshop_nepal.py"
+  ],
+  "success_rate": {
+    "backend": "100% (21/21 tests passed)",
+    "frontend": "100% (all pages loading and functioning correctly)"
+  },
+  "test_credentials": {
+    "admin_url": "/panelgsnadminbackend/login",
+    "admin_username": "gsnadmin",
+    "admin_password": "gsnadmin"
+  },
+  "seed_data_creation": "Multiple TEST_ prefixed orders created during testing",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All features tested and working. Rate limiting (30/minute) on login endpoint - wait 60 seconds between test batches if hitting 429 errors.",
+  "features_tested": {
+    "homepage": {
+      "status": "PASS",
+      "details": "GSN branding, Trustpilot reviews, customer reviews, products grid with categories, footer with social links"
+    },
+    "product_detail_page": {
+      "status": "PASS", 
+      "details": "Product title, variations with pricing, quantity selector, ORDER NOW and ADD TO CART buttons, description"
+    },
+    "admin_login": {
+      "status": "PASS",
+      "details": "Login at /panelgsnadminbackend/login with gsnadmin/gsnadmin works, redirects to dashboard"
+    },
+    "admin_dashboard": {
+      "status": "PASS",
+      "details": "Shows stats (2 Categories, 5 Products, 20 Reviews, 5 Social Links), Quick Actions, Welcome message"
+    },
+    "admin_orders": {
+      "status": "PASS",
+      "details": "Shows 10 orders with status breakdown (Pending/Confirmed/Completed), search, Update Status buttons"
+    },
+    "admin_products": {
+      "status": "PASS",
+      "details": "Shows 5 products (Netflix, Prime Video, Spotify, YouTube, Red Dead), drag reorder, Add Product button"
+    },
+    "admin_categories": {
+      "status": "PASS",
+      "details": "Shows 2 categories (SUBSCRIPTIONS, GAME SERVICE) with edit/delete buttons"
+    },
+    "admin_staff_management": {
+      "status": "PASS",
+      "details": "Staff list with existing staff member, Add Staff Member button, edit/delete actions, permissions display"
+    },
+    "staff_crud_api": {
+      "status": "PASS",
+      "details": "Create, Read, Update, Delete staff members all working via API"
+    },
+    "checkout_flow": {
+      "status": "PASS",
+      "details": "ORDER NOW opens modal with form fields, store credits option, promo code, price breakdown, Continue to Payment"
+    },
+    "customer_otp_auth": {
+      "status": "PASS",
+      "details": "OTP endpoints working - requires WhatsApp number, sends OTP to email"
+    },
+    "product_search": {
+      "status": "PASS",
+      "details": "Advanced search and suggestions endpoints working"
+    },
+    "api_endpoints_tested": [
+      "GET /api/products - 200 OK",
+      "GET /api/categories - 200 OK", 
+      "GET /api/reviews - 200 OK",
+      "GET /api/faqs - 200 OK",
+      "GET /api/payment-methods - 200 OK",
+      "GET /api/social-links - 200 OK",
+      "GET /api/notification-bar - 200 OK",
+      "POST /api/auth/login - 200 OK",
+      "GET /api/auth/me - 200 OK",
+      "GET /api/analytics/overview - 200 OK",
+      "GET /api/analytics/top-products - 200 OK",
+      "GET /api/admins - 200 OK",
+      "POST /api/admins - 200 OK (staff create)",
+      "PUT /api/admins/{id} - 200 OK (staff update)",
+      "DELETE /api/admins/{id} - 200 OK (staff delete)",
+      "GET /api/permissions - 200 OK",
+      "GET /api/orders - 200 OK",
+      "POST /api/orders/create - 200 OK",
+      "POST /api/auth/customer/send-otp - 200 OK",
+      "GET /api/products/search/advanced - 200 OK",
+      "GET /api/products/search/suggestions - 200 OK"
+    ]
+  }
+}

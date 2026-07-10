@@ -1,0 +1,171 @@
+<analysis>**original_problem_statement:**
+The user wants to build a premium, modern, dark-themed e-commerce website for digital goods, inspired by ottsathi.com and gameshopnepal.com.
+
+PRODUCT REQUIREMENTS:
+- **Homepage:** Display customer reviews and a grid of products.
+- **Product System:** Products with variations. Admins should be able to edit and reorder these variations.
+- **Checkout & Invoicing:** A multi-step flow including redirection to WhatsApp, payment screenshot uploads, automatic order confirmation, and automated invoice emailing.
+- **Admin Panel:** A comprehensive, mobile-responsive admin panel to manage products, categories, reviews, blogs, FAQs, and orders.
+- **Authentication:** Secure admin login and a customer login system supporting both OTP and direct Google OAuth.
+- **Ad System:** A self-hosted ad management system for admins.
+- **Reseller Program:** A page displaying tiered reseller plans that are manageable by an admin.
+- **PWA:** The website should be installable on mobile devices as a Progressive Web App.
+- **Discord Notifications:** Confirmed orders should trigger a notification to a specific Discord webhook.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A full-stack FastAPI and React e-commerce application. In this session, the agent successfully replaced the external Trustpilot system with a full-featured, on-site review system. This included a customer-facing review page, admin management (approval/rejection), and a new feature to automatically reward customers with a discount code for approved reviews.
+
+Significant UI/UX and architectural improvements were also made:
+- A major bug preventing variant stock from decrementing on order completion was fixed.
+- The navigation was redesigned to be a bottom tab bar on mobile and a floating dynamic island on desktop.
+- UI polish was added across the app with micro-animations, glassmorphism effects, skeleton loaders, and a new sound notification for admins on new orders.
+- Multiple bugs were fixed, including a critical review eligibility issue, and the application's deployment readiness was confirmed.
+
+**Last working item**:
+-   **Last item agent was working:** The user requested a specific layout for a downloadable review image that admins can generate. The agent re-implemented the canvas-based image generation logic in the  component to match the user's new design.
+-   **Status:** USER VERIFICATION PENDING
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Frontend testing agent (The screenshot tool has been unreliable with the admin login flow). The test should focus on the Admin Reviews page and verify the downloaded image format and content.
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+There are no known pending issues.
+
+**In progress Task List**:
+There are no tasks currently in progress.
+
+**Upcoming and Future Tasks**
+- **Upcoming Tasks:**
+    - **(P0) Critical Refactoring:** Break down the monolithic  (>6000 lines) into modular  files. This is the most critical technical debt and should be addressed immediately.
+    - **(P1) Reorder Product Variations:** Allow admins to drag-and-drop to reorder product variations in the admin panel.
+    - **(P2) Flash Sales Timer:** Implement a countdown timer for special deals.
+    - **(P2) Product Bundles:** Allow creating and selling combo deals.
+
+- **Future Tasks:**
+    - Live purchase ticker.
+    - eSewa/Khalti payment gateway integration.
+    - Enhanced Loyalty/Rewards and Referral Programs.
+    - Public Order Tracking Page.
+    - Take.app integration.
+    - Enhance FAQ Page with categorization and search.
+    - Help Center/Knowledge Base.
+
+**Completed work in this session**
+- **On-Site Review System:**
+    - Implemented a native review system ( page), removing the dependency on Trustpilot.
+    - Created backend endpoints for customers to submit reviews and for the public to view approved reviews.
+    - Updated the admin panel for review moderation (approve/reject).
+    - Updated all order completion emails to link to the new on-site review page ().
+- **Review Reward Feature:**
+    - Implemented an admin-configurable feature to reward customers with a discount for leaving a review.
+    - The system automatically generates a unique, single-use promo code when an admin approves a review.
+- **Critical Bug Fixes:**
+    - **Stock Decrement:** Fixed a critical bug where product variant stock was not decreasing on order completion. Logic was added to both order completion paths in .
+    - **Review Eligibility:** Fixed a bug where customers with Confirmed orders couldn't leave reviews. The backend check now includes , , and  statuses. Also resolved a token conflict where the  would overwrite the , preventing logged-in admins from being recognized as customers.
+- **UI/UX & Design Enhancements:**
+    - **Navigation Redesign:** Re-architected the navbar to be a fixed bottom tab bar on mobile and a floating dynamic island style bar at the top on desktop.
+    - **Micro-animations:** Added staggered loading animations for product grids, hover effects, and smooth page transitions.
+    - **Modern Aesthetics:** Implemented glassmorphism cards, a refined dark mode palette, and an enhanced footer with better organization.
+    - **Polished UX:** Replaced spinners with shimmer-effect skeleton loaders and created custom empty state components for the cart and review pages.
+- **Admin Experience:**
+    - **Sound Notifications:** Added a ting sound effect that plays for admins when a new order is confirmed, with a toggle switch in the sidebar.
+    - **Downloadable Review Images:** Created a feature for admins to download a stylized PNG image of any customer review to share on social media. The design was updated based on user feedback.
+- **General Maintenance:**
+    - Renamed Daily Rewards to Rewards throughout the app.
+    - Fixed a UI bug where the notification bar would hide the search and cart buttons on mobile.
+    - Patched an API endpoint () that returned , causing frontend errors.
+
+**Earlier issues found/mentioned but not fixed**
+- None.
+
+**Known issue recurrence from previous fork**
+- None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Backend**: FastAPI, Motor. Logic was added for review management, reward generation, and stock decrementing.
+- **Frontend**: React, Tailwind CSS, Recharts,  for toasts.
+- **Image Generation**: Using the browser's **Canvas API** directly on the frontend () to dynamically draw a styled review image for download.
+- **Polling**: A  loop in  polls a backend endpoint () to check for new orders and trigger a sound notification.
+
+**key DB schema**
+- **reviews** (new collection): 
+- **settings** (new document): 
+- **products**:  is now decremented on order completion.
+
+**changes in tech stack**
+- No new technologies were added. The  was used on the frontend for image generation.
+
+**All files of reference**
+- : Contains all new backend logic and critical bug fixes (stock decrement, review eligibility).
+- : Central hub for review management, reward settings, and the canvas-based image generation logic.
+- : The new customer-facing review page.
+- : Completely refactored for the new responsive desktop/mobile navigation structure.
+- : Contains the fix for the customer authentication token.
+- : Implemented the polling mechanism for new order sound notifications.
+
+**Areas that need refactoring**:
+- ** is a critical monolith (>6000 lines)**. It has become a significant liability, making changes risky and difficult to reason about. This is the highest priority refactoring task.
+
+**key api endpoints**
+- **Reviews & Rewards:**
+    - : Checks if the current customer can leave a review.
+    - : Submits a customer review.
+    - : Approves/rejects a review and triggers reward promo code generation.
+    - : Manages the review reward configuration.
+- **Order Completion & Stock:**
+    - : Marks order as complete and now decrements stock.
+    - : Bulk updates status and now decrements stock if status is 'Completed'.
+- **Admin Notifications:**
+    - : A lightweight endpoint for the admin panel to poll for new orders.
+
+**Critical Info for New Agent**
+- **Verification Needed:** Your first task is to verify the downloadable review image feature on the  page. The screenshot tool may fail due to the admin login flow; use the frontend testing agent for a reliable test.
+- **CRITICAL REFACTOR:** After verifying the last task, you **MUST** propose the refactoring of . The file's size is a major risk to the project's stability. Plan to break it down into smaller, manageable  files (e.g., , , ).
+- **Auth Tokens:** Be aware of the distinction between the  and . A bug was fixed where the admin token interceptor was overriding the customer token header. API calls requiring customer authentication must now explicitly pass the .
+
+**documents and test reports created in this job**
+- 
+- 
+- 
+-  (updated)
+
+**Last 10 User Messages and any pending HUMAN messages**
+1. **make it like this...**: User provided a new, more detailed layout for the downloadable review image. (Status: **Completed, pending verification**)
+2. **have a button to download the review image**: User requested the feature to generate and download a review image from the admin panel. (Status: Completed)
+3. **variant stocks arent decreasing...**: User reported a critical bug where stock was not being updated. (Status: Completed)
+4. **when notification bar is active the search button and cart button is not visible**: User reported a mobile UI bug. (Status: Completed)
+5. **send a sound effect like tinn, when new order is confirmed**: User requested an audible notification for new orders in the admin panel. (Status: Completed)
+6. **Have it like dynamic islend...**: User requested to revert the desktop navbar to the top, while keeping the mobile navbar at the bottom. (Status: Completed)
+7. **Instead of having hero bar on top. Have it at bottom**: User requested moving the main navigation to the bottom of the screen. (Status: Superseded by the next request)
+8. **find and fix bugs/ errors**: User requested a general bug hunt. (Status: Completed, found and fixed the  notification bar issue)
+9. **just name it rewards instead of daily rewards**: User requested a simple text change. (Status: Completed)
+10. **what else can we do to make our design better**: User asked for design suggestions. (Status: Completed, agent implemented several enhancements)
+
+**Project Health Check:**
+- **Broken**: No. The application is stable.
+- **Mocked**: No.
+
+**3rd Party Integrations**
+- **Direct Google OAuth**: For customer login.
+- **ImgBB**: For hosting user-uploaded payment screenshots.
+- **Discord**: For order and payment notifications via webhooks.
+- **OpenAI GPT**: Backend code exists, but not actively used.
+- **APScheduler**: For scheduled background tasks.
+
+**Testing status**
+- **Testing agent used after significant changes**: YES (used for the on-site review system and reward feature).
+- **Troubleshoot agent used after agent stuck in loop**: NO
+- **Test files created**: None.
+- **Known regressions**: A review eligibility bug was introduced and fixed within this session.
+
+**Credentials to test flow:**
+- **Admin Login:** Use credentials from  and  in  on the  page.
+- **Google OAuth:** Requires a real Google account and whitelisting the preview URL in Google Cloud Console.
+
+**What agent forgot to execute**
+- The critical refactoring of  has been consistently postponed in favor of user-requested features. This is a deliberate prioritization but remains the most significant piece of unaddressed technical debt.</analysis>

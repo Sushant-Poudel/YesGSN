@@ -1,0 +1,18 @@
+MONGO_URL="mongodb://localhost:27017"
+DB_NAME="test_database"
+CORS_ORIGINS="*"
+ADMIN_USERNAME="gsnadmin"
+ADMIN_PASSWORD="gsnadmin"
+TAKEAPP_API_KEY="cmhjah97t000ggy04ei3vl91b"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_USER="gameshopnepal.buy@gmail.com"
+SMTP_PASSWORD="bwutbhemtnoqepdb"
+SMTP_FROM_EMAIL="gameshopnepal.buy@gmail.com"
+SMTP_FROM_NAME="GameShop Nepal"
+SITE_URL="https://gameshopnepal.com"
+JWT_SECRET="206931972f2755167ca08e460db77d0756d1a7563bab22de9e29c870cdafeac7"
+IMGBB_API_KEY="a7b8503e59593528f8cd58121653a4b2"
+# Google Sheets Integration
+GOOGLE_SHEETS_SPREADSHEET_ID="1PNB6sHaawTa5vrpd6Oc4Q97HE2kBFBHEnuI6ChLMnmA"
+GOOGLE_SERVICE_ACCOUNT_JSON='{"type": "service_account", "project_id": "coherent-fold-486215-t8", "private_key_id": "dbb93d59a7b3350a7e74a3999163d2364e236a64", "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDJHvfSeVTb018a\nEfm2OD6iKRI7R0sHxZ9LHx8gjvA37RhSL0cEkcgJ4TrOFNQdtkZoadEPP1w4NtaW\nvyETIGMMj8mfRHvWADy/3SQt25zAgBCwSuZ2t0iA803oKejtzlOsqk0ivlzAK9c/\npy3JSTW8JMZw9HN4HjATduy09No9lQlYeqloxiQ4GnhPfxHwnQDjK6Ryn5KdVjcW\nMcBm6I0VGh8xgGZMSj3Gv9GnAhqbBAb4rSR/SvhEa8PTBrv0NXBRifAjV9gvgSn+\nKLosDK3r7Nf0bifCEzvO9nus3V+FoCICQBsDMMOGbKExUNS7zHubPsZDOf5/Lk24\nKl8LGWpFAgMBAAECggEAG7pwyWxf9jTEolgDGQvVGs9Vy6VvI0GsThOa24bJeLRw\nC3ioLmmY7j/Gtz3o5rXILEIWiCcgpEFvQXZVbYkkDsnOLu6msiDzPzKSd94U1Pdz\nFZMmBg0L6ndg8NbCXfL5107ddqJPMFF7CjQW3G8DAQ8C6vTQ7Kkg0LYvOV2erymb\nyL20oCRCmo/J3wIqKnfVpCffhyMjPlUUlclew2bLdWfhsMioh4yf/R5koIapUlbF\np/6lYLIhnAmVOwybz2tXda2hoOUOqFp3+wRAHbhR3xsBEmeW/bPmBwqR4mvEtNt6\nbWKjdSNISmhT7Sa/ts5SXryRIKb8YdhrZ5I8q3YkcQKBgQD2oEjU3mSFGtNK55K5\nVYWwVHMBbjBfE3kcOUzvvLfT87xqRkk6pscvRhVqI2zBB6x6suLjNrQoS07w1OCk\nULGnIVJUp4PkE0YlPyZqdTcfUGDIMWc96LwnkRuDv1p6J5OAjCRDpGE1fAKJrKnj\nURJr5v1EWDmnz/J4FCPOK1gwzQKBgQDQw+kW/8uULtjsMJpGijutNKa2DnzgDp8Z\n50AsJLMANhwvRNJpG8EIiBs32LcHEh0rJ58QwQ83uP2CTCrbMK2YHZX9MDBGLa4N\n0CEtFAzx4zCZP6+uGenZm9xGHLHwVB0OPAK+M/5HCJkHmIXE7trzWwm9CsXxp6kM\nymJUIyY/WQKBgQDYtYEp430qZKbzc8a+qgJ+LcacpClG8gKCpWsQYaCaUtrl+3rP\nWcs+o/OfPx+KAmcxrcymYOQvX/Uus6/tUqa4OBRzJHtFRxZlFjd4ZiUYk/VnE9on\nUUE790rZGqSzH+GBnCMleOSeLajBNwJVJ2DrhZ5Ylrma1qO1leTcfcPRpQKBgQCV\n6Ff0H/I7kfhKggwGIzT/BxO/H2AkM9ujah72k9PFjxVmC/FbcIaIbdO9omyrMyKm\n3mimSzt2M+w2KCOOCcJdvMD7ciL4Ac0+NfncuM0i1JUNNmIcjpcRn43o+qn7fSrw\nEb+WfRdWQqJAhhFofGvU28Z+bMH+6PnHKXy6FhNc4QKBgQCrBDBdyLb3SklAfgy0\n8JYsdAJ/HSCAaGckr345Aapuo0aqQmS0lrn+cZrKUsiv9+91gppASMeMwhgjPXVZ\n0tUjmrahggyNoBm94fZIPkuJuDad7zydvzr6hmCX59Q+gfoKQvfpGj/bEcpq+eop\nm2CUgKXWov2bN+3TmhrdkEjNlg==\n-----END PRIVATE KEY-----\n", "client_email": "gsn-payment-screenshot@coherent-fold-486215-t8.iam.gserviceaccount.com", "client_id": "113869465775908720433", "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gsn-payment-screenshot%40coherent-fold-486215-t8.iam.gserviceaccount.com", "universe_domain": "googleapis.com"}'

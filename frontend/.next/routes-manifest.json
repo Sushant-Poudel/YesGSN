@@ -1,0 +1,391 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.gameshopnepal.com"
+        }
+      ],
+      "destination": "https://gameshopnepal.com/:path*",
+      "statusCode": 308,
+      "regex": "^(?!/_next)(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(svg|jpg|jpeg|png|gif|ico|webp|avif)(?:/)?$"
+    },
+    {
+      "source": "/_next/static/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ],
+      "regex": "^/_next/static(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    }
+  ],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/blog/[slug]",
+      "regex": "^/blog/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/blog/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/invoice/[orderId]",
+      "regex": "^/invoice/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPorderId": "nxtPorderId"
+      },
+      "namedRegex": "^/invoice/(?<nxtPorderId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/payment/[orderId]",
+      "regex": "^/payment/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPorderId": "nxtPorderId"
+      },
+      "namedRegex": "^/payment/(?<nxtPorderId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/product/[productSlug]",
+      "regex": "^/product/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPproductSlug": "nxtPproductSlug"
+      },
+      "namedRegex": "^/product/(?<nxtPproductSlug>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/about",
+      "regex": "^/about(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/about(?:/)?$"
+    },
+    {
+      "page": "/account",
+      "regex": "^/account(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account(?:/)?$"
+    },
+    {
+      "page": "/blog",
+      "regex": "^/blog(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blog(?:/)?$"
+    },
+    {
+      "page": "/checkout",
+      "regex": "^/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout(?:/)?$"
+    },
+    {
+      "page": "/daily-reward",
+      "regex": "^/daily\\-reward(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/daily\\-reward(?:/)?$"
+    },
+    {
+      "page": "/faq",
+      "regex": "^/faq(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/faq(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend",
+      "regex": "^/panelgsnadminbackend(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/ads",
+      "regex": "^/panelgsnadminbackend/ads(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/ads(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/analytics",
+      "regex": "^/panelgsnadminbackend/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/analytics(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/audit-logs",
+      "regex": "^/panelgsnadminbackend/audit\\-logs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/audit\\-logs(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/blocklist",
+      "regex": "^/panelgsnadminbackend/blocklist(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/blocklist(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/blog",
+      "regex": "^/panelgsnadminbackend/blog(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/blog(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/categories",
+      "regex": "^/panelgsnadminbackend/categories(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/categories(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/complaints",
+      "regex": "^/panelgsnadminbackend/complaints(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/complaints(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/credit-settings",
+      "regex": "^/panelgsnadminbackend/credit\\-settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/credit\\-settings(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/customers",
+      "regex": "^/panelgsnadminbackend/customers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/customers(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/daily-reward",
+      "regex": "^/panelgsnadminbackend/daily\\-reward(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/daily\\-reward(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/faqs",
+      "regex": "^/panelgsnadminbackend/faqs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/faqs(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/floating-button",
+      "regex": "^/panelgsnadminbackend/floating\\-button(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/floating\\-button(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/login",
+      "regex": "^/panelgsnadminbackend/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/login(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/multiplier",
+      "regex": "^/panelgsnadminbackend/multiplier(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/multiplier(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/newsletter",
+      "regex": "^/panelgsnadminbackend/newsletter(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/newsletter(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/notification-bar",
+      "regex": "^/panelgsnadminbackend/notification\\-bar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/notification\\-bar(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/orders",
+      "regex": "^/panelgsnadminbackend/orders(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/orders(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/pages",
+      "regex": "^/panelgsnadminbackend/pages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/pages(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/payment-methods",
+      "regex": "^/panelgsnadminbackend/payment\\-methods(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/payment\\-methods(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/payment-redirect",
+      "regex": "^/panelgsnadminbackend/payment\\-redirect(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/payment\\-redirect(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/pricing",
+      "regex": "^/panelgsnadminbackend/pricing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/pricing(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/products",
+      "regex": "^/panelgsnadminbackend/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/products(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/promo-codes",
+      "regex": "^/panelgsnadminbackend/promo\\-codes(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/promo\\-codes(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/referral",
+      "regex": "^/panelgsnadminbackend/referral(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/referral(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/reseller-plans",
+      "regex": "^/panelgsnadminbackend/reseller\\-plans(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/reseller\\-plans(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/reviews",
+      "regex": "^/panelgsnadminbackend/reviews(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/reviews(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/social-links",
+      "regex": "^/panelgsnadminbackend/social\\-links(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/social\\-links(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/staff",
+      "regex": "^/panelgsnadminbackend/staff(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/staff(?:/)?$"
+    },
+    {
+      "page": "/panelgsnadminbackend/webhooks",
+      "regex": "^/panelgsnadminbackend/webhooks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/panelgsnadminbackend/webhooks(?:/)?$"
+    },
+    {
+      "page": "/privacy",
+      "regex": "^/privacy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
+      "page": "/products",
+      "regex": "^/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/products(?:/)?$"
+    },
+    {
+      "page": "/reseller-plans",
+      "regex": "^/reseller\\-plans(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reseller\\-plans(?:/)?$"
+    },
+    {
+      "page": "/reviews",
+      "regex": "^/reviews(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reviews(?:/)?$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "regex": "^/sitemap\\.xml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
+    },
+    {
+      "page": "/track-order",
+      "regex": "^/track\\-order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/track\\-order(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
