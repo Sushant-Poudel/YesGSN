@@ -2,8 +2,15 @@
 Google Sheets Service for Customer Data Storage
 Uses Service Account authentication via environment variable
 """
-import gspread
-from google.oauth2.service_account import Credentials
+try:
+    import gspread
+    from google.oauth2.service_account import Credentials
+    SHEETS_LIBS_AVAILABLE = True
+except ImportError:
+    gspread = None
+    Credentials = None
+    SHEETS_LIBS_AVAILABLE = False
+
 import logging
 import os
 import json
@@ -27,6 +34,8 @@ _client = None
 def get_sheets_client():
     """Get authenticated Google Sheets client"""
     global _client
+    if not SHEETS_LIBS_AVAILABLE:
+        return None
     if _client is None:
         try:
             if not GOOGLE_SERVICE_ACCOUNT_JSON:
