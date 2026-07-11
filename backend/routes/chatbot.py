@@ -6,7 +6,13 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from database import db
 from dependencies import get_current_user
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    LLM_AVAILABLE = True
+except ImportError:
+    LlmChat = None
+    UserMessage = None
+    LLM_AVAILABLE = False
 import uuid
 import os
 import re
@@ -240,9 +246,15 @@ async def chat_endpoint(data: ChatMessage):
     if not user_message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
     
+    if not LLM_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Chatbot is not configured on this server. Contact the admin.",
+        )
+
     # Get store context for the AI
     store_context = await get_store_context()
-    
+
     # Get or create chat session
     if session_id not in chat_sessions:
         system_message = f"""You are a friendly and helpful customer support assistant for GameShop Nepal (GSN), an online store selling digital products like Netflix, Spotify, YouTube Premium, gaming subscriptions, and more.

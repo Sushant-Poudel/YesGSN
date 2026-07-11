@@ -7,9 +7,13 @@ import secrets
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env', override=False)
 
-# Create uploads directory
+# Create uploads directory (best-effort - read-only filesystems like Vercel
+# serverless skip this; ImgBB is the primary image host so nothing depends on it there)
 UPLOADS_DIR = ROOT_DIR / "uploads"
-UPLOADS_DIR.mkdir(exist_ok=True)
+try:
+    UPLOADS_DIR.mkdir(exist_ok=True)
+except OSError:
+    pass
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']

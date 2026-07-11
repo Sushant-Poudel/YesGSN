@@ -22,6 +22,7 @@ app = FastAPI(title="GameShop Nepal API", version="2.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://gameshopnepal.com", "https://www.gameshopnepal.com", "http://localhost:3000", "https://codebase-import-8.preview.emergentagent.com"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +58,7 @@ from routes.engagement import router as engagement_router
 from routes.chatbot import router as chatbot_router
 from routes.customers import router as customers_router
 from routes.webhooks import router as webhooks_router
+from routes.cron import router as cron_router
 
 api_router.include_router(auth_router)
 api_router.include_router(products_router)
@@ -70,6 +72,7 @@ api_router.include_router(engagement_router)
 api_router.include_router(chatbot_router)
 api_router.include_router(customers_router)
 api_router.include_router(webhooks_router)
+api_router.include_router(cron_router)
 
 
 # ==================== HEALTH CHECK ====================
@@ -122,7 +125,10 @@ async def root():
 # ==================== STATIC FILE SERVING ====================
 
 UPLOADS_DIR = ROOT_DIR / "uploads"
-UPLOADS_DIR.mkdir(exist_ok=True)
+try:
+    UPLOADS_DIR.mkdir(exist_ok=True)
+except OSError:
+    pass
 
 @app.get("/uploads/{filename}")
 async def serve_upload(filename: str):
