@@ -1,10 +1,11 @@
 # One-droplet deployment (backend + MongoDB + HTTPS)
 
-Everything the backend needs runs in three containers on a single Ubuntu droplet:
+Everything the backend needs runs in four containers on a single Ubuntu droplet:
 
-- `mongo`  — MongoDB 7 with a persistent volume for `/data/db`
-- `api`    — the FastAPI backend built from `backend/Dockerfile`
-- `caddy`  — reverse proxy that gets a Let's Encrypt HTTPS cert automatically
+- `mongo`         — MongoDB 7 with a persistent volume for `/data/db`
+- `api`           — the FastAPI backend built from `backend/Dockerfile`
+- `caddy`         — reverse proxy that gets a Let's Encrypt HTTPS cert automatically
+- `mongo-backup`  — dumps MongoDB every 24 h, keeps 30 days (see below)
 
 Total cost: whatever your droplet plan is (a $6/mo Basic droplet handles this fine for GameShop Nepal's volume).
 
@@ -123,10 +124,45 @@ Nuke everything including the database (**destructive**):
 docker compose down -v
 ```
 
-Back up MongoDB to a file on the host:
+## Backups
+
+The `mongo-backup` container runs `deploy/backup.sh` on start and then every 24 h. Each run writes a gzipped archive to the `mongo-backups` docker volume and prunes anything older than `BACKUP_KEEP_DAYS` (default 30).
+
+List backups:
 ```bash
-docker compose exec mongo mongodump --archive=/tmp/backup.gz --gzip \
-    --username "$MONGO_ROOT_USERNAME" --password "$MONGO_ROOT_PASSWORD" \
-    --authenticationDatabase admin
-docker compose cp mongo:/tmp/backup.gz ./backup-$(date +%F).gz
+docker compose exec mongo-backup ls -lh /backups
 ```
+
+Copy the latest backup to the host (so you can `scp` it off-droplet):
+```bash
+LATEST=$(docker compose exec mongo-backup ls -t /backups | head -1 | tr -d '\r')
+docker compose cp "mongo-backup:/backups/${LATEST}" ./
+```
+
+Force a backup right now:
+```bash
+docker compose exec mongo-backup /usr/local/bin/backup.sh
+```
+
+### Restore from a backup
+
+```bash
+# Copy a backup file into the running mongo container
+docker compose cp ./gsn-2026-07-15_0300.gz mongo:/tmp/restore.gz
+
+# Restore it (destructive: overwrites matching collections)
+docker compose exec mongo mongorestore --archive=/tmp/restore.gz --gzip \
+    --username "$MONGO_ROOT_USERNAME" --password "$MONGO_ROOT_PASSWORD" \
+    --authenticationDatabase admin --drop
+```
+
+### Off-droplet backups (recommended)
+
+The dumps only survive as long as the droplet's disk does. For real safety copy them somewhere else, e.g. weekly `scp` from your laptop:
+
+```bash
+scp root@YOUR_DROPLET_IP:/var/lib/docker/volumes/deploy_mongo-backups/_data/gsn-*.gz \
+    ~/gsn-backups/
+```
+
+Or use DigitalOcean Spaces (~$5/mo) with `s3cmd` in a cron job.

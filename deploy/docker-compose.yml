@@ -72,8 +72,37 @@ services:
     networks:
       - web
 
+  # Nightly MongoDB backup. Runs backup.sh once at container start, then
+  # every 24 hours. Keeps ${BACKUP_KEEP_DAYS:-30} days of dumps in the
+  # mongo-backups volume (see `docker compose exec mongo-backup ls /backups`).
+  mongo-backup:
+    image: mongo:7
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: mongo
+      MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    volumes:
+      - ./backup.sh:/usr/local/bin/backup.sh:ro
+      - mongo-backups:/backups
+    networks:
+      - internal
+    entrypoint: >
+      sh -c '
+        chmod +x /usr/local/bin/backup.sh &&
+        while true; do
+          /usr/local/bin/backup.sh || echo "[backup] FAILED at $(date -u)";
+          sleep 86400;
+        done
+      '
+
 volumes:
   mongo-data:
+  mongo-backups:
   api-uploads:
   caddy-data:
   caddy-config:
