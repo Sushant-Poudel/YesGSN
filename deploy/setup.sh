@@ -12,8 +12,9 @@
 #      you can edit .env with real values before starting the stack.
 set -euo pipefail
 
-REPO_URL="https://github.com/sushant-poudel/YesGSN.git"
-INSTALL_DIR="/opt/gsn"
+REPO_URL="${REPO_URL:-https://github.com/sushant-poudel/YesGSN.git}"
+REPO_BRANCH="${REPO_BRANCH:-main}"
+INSTALL_DIR="${INSTALL_DIR:-/opt/gsn}"
 
 echo "==> Updating system packages"
 apt-get update -y
@@ -43,9 +44,11 @@ ufw --force enable
 
 echo "==> Cloning repo to ${INSTALL_DIR}"
 if [ -d "${INSTALL_DIR}/.git" ]; then
+    git -C "${INSTALL_DIR}" fetch --all
+    git -C "${INSTALL_DIR}" checkout "${REPO_BRANCH}"
     git -C "${INSTALL_DIR}" pull --ff-only
 else
-    git clone "${REPO_URL}" "${INSTALL_DIR}"
+    git clone --branch "${REPO_BRANCH}" "${REPO_URL}" "${INSTALL_DIR}"
 fi
 
 cd "${INSTALL_DIR}/deploy"
