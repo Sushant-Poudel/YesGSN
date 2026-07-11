@@ -76,6 +76,23 @@ python3 import_db.py --mode upsert \
     --collections customers orders takeapp_orders order_status_history newsletter otp_records
 ```
 
+### Option C — Import fresh CSV exports (3,515 customers + 3,246 orders)
+
+If your latest data lives in `Customer_Details.csv` + `Order_Log.csv` (the admin
+panel export format), use `import_csv_data.py`. It upserts customers by email
+(fallback: phone) and orders by the short Order ID, so re-runs are safe.
+
+```bash
+python3 import_csv_data.py \
+    --customers-csv path/to/Customer_Details.csv \
+    --orders-csv    path/to/Order_Log.csv \
+    --dry-run                                     # preview first
+
+python3 import_csv_data.py \
+    --customers-csv path/to/Customer_Details.csv \
+    --orders-csv    path/to/Order_Log.csv         # real run
+```
+
 ### Verify
 
 ```bash
