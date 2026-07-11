@@ -1,0 +1,13 @@
+# Caddy config: routes api.gameshopnepal.com -> the FastAPI container on port 8080.
+# Caddy fetches a Let's Encrypt cert automatically the first time this domain
+# resolves to the droplet, so nothing to configure for HTTPS.
+#
+# Change API_DOMAIN in .env if you use a different subdomain.
+
+{$API_DOMAIN} {
+    encode gzip
+    reverse_proxy api:8080 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Real-IP {remote_host}
+    }
+}
